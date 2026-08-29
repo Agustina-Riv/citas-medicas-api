@@ -1,0 +1,19 @@
+# Dependencias
+node_modules/
+
+# Build
+dist/
+
+# Variables de entorno
+.env
+
+# Prisma
+generated/
+
+# Logs
+*.log
+
+# Editor
+.vscode/
+
+*.tsbuildinfo
