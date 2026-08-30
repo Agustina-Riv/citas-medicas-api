@@ -56,6 +56,28 @@ export class AuthService {
     return tokens;
   }
 
+  async refreshTokens(userId: number, refreshToken: string) {
+  const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user || !user.refreshToken) {
+    throw new UnauthorizedException('Acceso denegado');
+  }
+
+  const refreshTokenMatches = await bcrypt.compare(
+    refreshToken,
+    user.refreshToken,
+  );
+
+  if (!refreshTokenMatches) {
+    throw new UnauthorizedException('Acceso denegado');
+  }
+
+  const tokens = await this.generateTokens(user.id, user.email, user.role);
+  await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+  return tokens;
+}
+
   private async generateTokens(userId: number, email: string, role: string) {
   const payload = { sub: userId, email, role };
 
