@@ -27,5 +27,13 @@ export class AuthController {
     const refreshToken = req.user.refreshToken;
     return this.authService.refreshTokens(userId, refreshToken);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(RefreshTokenGuard)
+  @Post('logout')
+  logout(@Request() req: any) {
+    const userId = req.user.sub;
+    return this.authService.logout(userId);
+  }
 }
 
