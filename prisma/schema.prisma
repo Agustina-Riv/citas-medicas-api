@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  DOCTOR
+  ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  password     String
+  name         String
+  role         Role     @default(USER)
+  refreshToken String?
+  createdAt    DateTime @default(now())
+
+  doctor       Doctor?
+  appointments Appointment[]
+}
+
+model Doctor {
+  id          Int      @id @default(autoincrement())
+  specialty   String
+  license     String   @unique
+  userId      Int      @unique
+  user        User     @relation(fields: [userId], references: [id])
+
+  appointments Appointment[]
+}
+
+model Appointment {
+  id        Int               @id @default(autoincrement())
+  startTime DateTime
+  status    AppointmentStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+
+  patientId Int
+  patient   User   @relation(fields: [patientId], references: [id])
+
+  doctorId  Int
+  doctor    Doctor @relation(fields: [doctorId], references: [id])
+}
