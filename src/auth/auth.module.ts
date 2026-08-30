@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
+import { AccessTokenStrategy } from './strategies/access-token.strategy';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
   JwtModule.register({}),
   PassportModule.register({ defaultStrategy: 'jwt-refresh' }),
 ],
-  providers: [AuthService, RefreshTokenStrategy],
+  providers: [AuthService, RefreshTokenStrategy, AccessTokenStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}
