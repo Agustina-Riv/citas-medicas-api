@@ -1,114 +1,223 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Citas Médicas API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST para la gestión de turnos médicos, desarrollada con NestJS, TypeScript, Prisma y PostgreSQL. Permite el registro y autenticación de usuarios (pacientes, doctores y administradores), la gestión de perfiles de doctores, y la reserva de turnos con validación automática de disponibilidad horaria.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Regla de negocio principal
 
-## Description
+No es posible reservar dos turnos que se superpongan para un mismo doctor. Cada turno tiene una duración fija de 30 minutos; al intentar reservar un horario ya ocupado, la API rechaza la operación con un error `409 Conflict`.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tecnologías
 
-## Project setup
+- **NestJS 11** + TypeScript
+- **PostgreSQL** como base de datos
+- **Prisma ORM** (v7, con adaptador `@prisma/adapter-pg`)
+- **JWT** (access + refresh tokens) para autenticación
+- **bcrypt** para el hasheo de contraseñas
+- **Helmet**, **CORS** y **rate limiting** (`@nestjs/throttler`) como capas de seguridad
 
+## Requisitos previos
+
+- Node.js 20+
+- pnpm
+- PostgreSQL instalado y corriendo localmente (o accesible remotamente)
+
+## Instalación
+
+1. Cloná el repositorio:
 ```bash
-$ pnpm install
+   git clone https://github.com/Agustina-Riv/citas-medicas-api.git
+   cd citas-medicas-api
 ```
 
-## Compile and run the project
-
+2. Instalá las dependencias:
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+   pnpm install
 ```
 
-## Run tests
-
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+3. Creá una base de datos en PostgreSQL:
+```sql
+   CREATE DATABASE citas_medicas_db;
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+4. Copiá el archivo de variables de entorno de ejemplo y completalo con tus datos:
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+   cp .env.example .env
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+5. Aplicá las migraciones de Prisma:
+```bash
+   npx prisma migrate dev
+```
 
-## Observability
+6. Iniciá el servidor en modo desarrollo:
+```bash
+   pnpm run start:dev
+```
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+La API queda disponible en `http://localhost:3000`.
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+## Endpoints
 
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+Todas las rutas (excepto `/auth/register` y `/auth/login`) requieren un `accessToken` válido en el header:
 
-## Resources
 
-Check out a few resources that may come in handy when working with NestJS:
+### Autenticación
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observer](https://observer.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+#### `POST /auth/register`
+Registra un nuevo usuario (rol `USER` por defecto).
 
-## Support
+**Body:**
+```json
+{
+  "email": "usuario@ejemplo.com",
+  "password": "contraseña123",
+  "name": "Nombre Apellido"
+}
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+**Respuesta `201`:** datos del usuario creado (sin la contraseña).
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+#### `POST /auth/login`
+Inicia sesión y devuelve los tokens de acceso.
 
-## License
+**Body:**
+```json
+{
+  "email": "usuario@ejemplo.com",
+  "password": "contraseña123"
+}
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+**Respuesta `200`:**
+```json
+{
+  "accessToken": "...",
+  "refreshToken": "..."
+}
+```
+
+---
+
+#### `POST /auth/refresh`
+Genera un nuevo par de tokens a partir de un `refreshToken` válido.
+
+**Header:** `Authorization: Bearer <refreshToken>`
+
+**Respuesta `200`:** nuevo `accessToken` y `refreshToken`.
+
+---
+
+#### `POST /auth/logout`
+Invalida el `refreshToken` del usuario autenticado.
+
+**Header:** `Authorization: Bearer <refreshToken>`
+
+**Respuesta `200`:**
+```json
+{
+  "message": "Sesión cerrada correctamente"
+}
+```
+
+### Doctors
+
+#### `POST /doctors`
+Crea un perfil de doctor vinculado a un usuario existente. El usuario pasa automáticamente a tener rol `DOCTOR`.
+
+**Body:**
+```json
+{
+  "specialty": "Cardiología",
+  "license": "MP-12345",
+  "userId": 1
+}
+```
+
+**Respuesta `201`:** datos del doctor creado.
+
+---
+
+#### `GET /doctors`
+Lista todos los doctores, incluyendo datos básicos del usuario asociado.
+
+**Respuesta `200`:** array de doctores.
+
+---
+
+#### `GET /doctors/:id`
+Obtiene un doctor por su id.
+
+**Respuesta `200`:** datos del doctor. `404` si no existe.
+
+---
+
+#### `PATCH /doctors/:id`
+Actualiza los datos de un doctor.
+
+**Body:** cualquier subconjunto de `{ specialty, license, userId }`.
+
+**Respuesta `200`:** doctor actualizado.
+
+---
+
+#### `DELETE /doctors/:id`
+Elimina un doctor.
+
+**Respuesta `200`:** doctor eliminado.
+
+### Appointments
+
+#### `POST /appointments`
+Reserva un turno para un paciente con un doctor. Valida que el doctor y el paciente existan, y que **no haya ya un turno reservado para ese doctor en el mismo horario**.
+
+**Body:**
+```json
+{
+  "doctorId": 1,
+  "patientId": 2,
+  "startTime": "2026-09-15T14:30:00.000Z"
+}
+```
+
+**Respuesta `201`:** turno creado, con estado `PENDING`.
+
+**Respuesta `409`** (horario ocupado):
+```json
+{
+  "message": "Ese horario ya está ocupado para este doctor",
+  "error": "Conflict",
+  "statusCode": 409
+}
+```
+
+---
+
+#### `GET /appointments`
+Lista todos los turnos, incluyendo datos del doctor y del paciente.
+
+**Respuesta `200`:** array de turnos.
+
+---
+
+#### `GET /appointments/:id`
+Obtiene un turno por su id.
+
+**Respuesta `200`:** datos del turno. `404` si no existe.
+
+---
+
+#### `PATCH /appointments/:id`
+Actualiza un turno (por ejemplo, cambiar su `status` a `CONFIRMED` o `CANCELLED`).
+
+**Body:** cualquier subconjunto de `{ doctorId, patientId, startTime, status }`.
+
+**Respuesta `200`:** turno actualizado.
+
+---
+
+#### `DELETE /appointments/:id`
+Elimina un turno.
+
+**Respuesta `200`:** turno eliminado.
