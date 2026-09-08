@@ -7,3 +7,4 @@ allowBuilds:
   prisma: true
   unrs-resolver: true
   workerd: set this to true or false
+packages: []
