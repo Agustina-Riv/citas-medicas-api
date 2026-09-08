@@ -56,6 +56,19 @@ No es posible reservar dos turnos que se superpongan para un mismo doctor. Cada 
 
 La API queda disponible en `http://localhost:3000`.
 
+## Deploy
+
+La API está desplegada en Railway:
+
+**URL base:** `https://citas-medicas-api-production-1983.up.railway.app`
+
+Ejemplo de uso:
+```bash
+curl -X POST https://citas-medicas-api-production-1983.up.railway.app/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","password":"123456","name":"Test User"}'
+```
+
 ## Endpoints
 
 Todas las rutas (excepto `/auth/register` y `/auth/login`) requieren un `accessToken` válido en el header:
